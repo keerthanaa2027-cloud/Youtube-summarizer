@@ -3,9 +3,19 @@ import './App.css';
 
 function App() {
   const [link, setLink] = useState('');
+  const [transcript, setTranscript] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSummarize = () => {
-    console.log('YouTube Link:', link);
+  const handleSummarize = async () => {
+    setLoading(true);
+    const response = await fetch('http://127.0.0.1:5000/transcript', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: link })
+    });
+    const data = await response.json();
+    setTranscript(data.transcript);
+    setLoading(false);
   };
 
   return (
@@ -19,8 +29,16 @@ function App() {
           value={link}
           onChange={(e) => setLink(e.target.value)}
         />
-        <button onClick={handleSummarize}>Summarize</button>
+        <button onClick={handleSummarize}>
+          {loading ? 'Loading...' : 'Summarize'}
+        </button>
       </div>
+      {transcript && (
+        <div className="result">
+          <h2>Transcript:</h2>
+          <p>{transcript}</p>
+        </div>
+      )}
     </div>
   );
 }
