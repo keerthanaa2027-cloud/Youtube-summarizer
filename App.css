@@ -28,7 +28,6 @@ h1 {
   color: #ff0000;
   margin-bottom: 10px;
   font-weight: 800;
-  letter-spacing: -1px;
 }
 
 .subtitle {
@@ -110,6 +109,20 @@ button:disabled {
   transform: none;
 }
 
+.thumbnail-card {
+  margin-bottom: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #222;
+  animation: fadeUp 0.5s ease;
+}
+
+.thumbnail {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 .error {
   background: #1a0000;
   border: 1px solid #ff000033;
@@ -161,6 +174,12 @@ button:disabled {
   animation: progress 2s ease infinite;
 }
 
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .result-card {
   background: #141414;
   border: 1px solid #222;
@@ -178,9 +197,14 @@ button:disabled {
   padding-bottom: 15px;
 }
 
-.result-header h2 {
+.result-card h2 {
   color: #ff0000;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+.result-header h2 {
+  margin-bottom: 0;
 }
 
 .copy-btn {
@@ -202,6 +226,64 @@ button:disabled {
   line-height: 2;
   font-size: 1rem;
   white-space: pre-wrap;
+}
+
+.key-points {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.key-points li {
+  color: #ccc;
+  padding: 12px 16px;
+  background: #0a0a0a;
+  border-radius: 8px;
+  border-left: 3px solid #ff0000;
+  line-height: 1.6;
+}
+
+.key-points li::before {
+  content: '→ ';
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.timestamp-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 16px;
+  background: #0a0a0a;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.timestamp-item:hover {
+  background: #1a1a1a;
+}
+
+.time-badge {
+  background: #ff0000;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.time-desc {
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 @keyframes spin {

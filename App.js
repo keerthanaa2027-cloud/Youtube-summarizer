@@ -3,10 +3,17 @@ import './App.css';
 
 function App() {
   const [link, setLink] = useState('');
-  const [summary, setSummary] = useState('');
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const getVideoId = (url) => {
+    if (url.includes('v=')) {
+      return url.split('v=')[1].split('&')[0];
+    }
+    return null;
+  };
 
   const handleSummarize = async () => {
     if (!link) {
@@ -15,7 +22,7 @@ function App() {
     }
     setLoading(true);
     setError('');
-    setSummary('');
+    setResult(null);
 
     try {
       const response = await fetch('http://127.0.0.1:5000/summarize', {
@@ -27,7 +34,7 @@ function App() {
       if (data.error) {
         setError(data.error);
       } else {
-        setSummary(data.summary);
+        setResult(data);
       }
     } catch (err) {
       setError('Something went wrong. Please try again!');
@@ -36,16 +43,19 @@ function App() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(summary);
+    const text = `Summary:\n${result.summary}\n\nKey Points:\n${result.key_points.join('\n')}`;
+    navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleClear = () => {
     setLink('');
-    setSummary('');
+    setResult(null);
     setError('');
   };
+
+  const videoId = getVideoId(link);
 
   return (
     <div className="container">
@@ -66,13 +76,22 @@ function App() {
             {loading ? '⏳ Summarizing...' : '⚡ Summarize'}
           </button>
         </div>
-
         {link && (
           <button className="clear-btn" onClick={handleClear}>
             ✕ Clear
           </button>
         )}
       </div>
+
+      {videoId && (
+        <div className="thumbnail-card">
+          <img
+            src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+            alt="Video thumbnail"
+            className="thumbnail"
+          />
+        </div>
+      )}
 
       {error && <div className="error">⚠️ {error}</div>}
 
@@ -86,16 +105,37 @@ function App() {
         </div>
       )}
 
-      {summary && !loading && (
-        <div className="result-card">
-          <div className="result-header">
-            <h2>📝 AI Summary</h2>
-            <button className="copy-btn" onClick={handleCopy}>
-              {copied ? '✅ Copied!' : '📋 Copy'}
-            </button>
+      {result && !loading && (
+        <div className="results">
+          <div className="result-card">
+            <div className="result-header">
+              <h2>📝 Summary</h2>
+              <button className="copy-btn" onClick={handleCopy}>
+                {copied ? '✅ Copied!' : '📋 Copy All'}
+              </button>
+            </div>
+            <p className="summary-text">{result.summary}</p>
           </div>
-          <div className="summary-text">
-            {summary}
+
+          <div className="result-card">
+            <h2>📌 Key Points</h2>
+            <ul className="key-points">
+              {result.key_points.map((point, index) => (
+                <li key={index}>{point}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="result-card">
+            <h2>⏱️ Timestamps</h2>
+            <div className="timestamps">
+              {result.timestamps.map((ts, index) => (
+                <div key={index} className="timestamp-item">
+                  <span className="time-badge">{ts.time}</span>
+                  <span className="time-desc">{ts.description}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
