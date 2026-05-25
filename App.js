@@ -1,8 +1,20 @@
 import { useState } from 'react';
 import './App.css';
 
+const LANGUAGES = [
+  { code: 'english', label: '🇬🇧 English' },
+  { code: 'hindi', label: '🇮🇳 Hindi' },
+  { code: 'tamil', label: '🇮🇳 Tamil' },
+  { code: 'kannada', label: '🇮🇳 Kannada' },
+  { code: 'spanish', label: '🇪🇸 Spanish' },
+  { code: 'french', label: '🇫🇷 French' },
+  { code: 'german', label: '🇩🇪 German' },
+  { code: 'japanese', label: '🇯🇵 Japanese' },
+];
+
 function App() {
   const [link, setLink] = useState('');
+  const [language, setLanguage] = useState('english');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,7 +40,7 @@ function App() {
       const response = await fetch('http://127.0.0.1:5000/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: link })
+        body: JSON.stringify({ url: link, language: language })
       });
       const data = await response.json();
       if (data.error) {
@@ -76,6 +88,21 @@ function App() {
             {loading ? '⏳ Summarizing...' : '⚡ Summarize'}
           </button>
         </div>
+
+        <div className="language-section">
+          <label>🌐 Summary Language:</label>
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+          >
+            {LANGUAGES.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {link && (
           <button className="clear-btn" onClick={handleClear}>
             ✕ Clear
