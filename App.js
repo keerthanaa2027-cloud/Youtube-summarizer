@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import jsPDF from 'jspdf';
 
 const LANGUAGES = [
   { code: 'english', label: '🇬🇧 English' },
@@ -67,6 +68,64 @@ function App() {
     setError('');
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    // Title
+    doc.setFontSize(20);
+    doc.setTextColor(255, 0, 0);
+    doc.text('YouTube Video Summary', pageWidth / 2, y, { align: 'center' });
+    y += 15;
+
+    // Video URL
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Source: ${link}`, 15, y);
+    y += 15;
+
+    // Summary
+    doc.setFontSize(14);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Summary', 15, y);
+    y += 8;
+    doc.setFontSize(11);
+    doc.setTextColor(50, 50, 50);
+    const summaryLines = doc.splitTextToSize(result.summary, pageWidth - 30);
+    doc.text(summaryLines, 15, y);
+    y += summaryLines.length * 7 + 10;
+
+    // Key Points
+    doc.setFontSize(14);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Key Points', 15, y);
+    y += 8;
+    doc.setFontSize(11);
+    doc.setTextColor(50, 50, 50);
+    result.key_points.forEach((point) => {
+      const lines = doc.splitTextToSize(`• ${point}`, pageWidth - 30);
+      doc.text(lines, 15, y);
+      y += lines.length * 7 + 3;
+    });
+    y += 10;
+
+    // Timestamps
+    doc.setFontSize(14);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Timestamps', 15, y);
+    y += 8;
+    doc.setFontSize(11);
+    doc.setTextColor(50, 50, 50);
+    result.timestamps.forEach((ts) => {
+      const lines = doc.splitTextToSize(`⏱ ${ts.time} — ${ts.description}`, pageWidth - 30);
+      doc.text(lines, 15, y);
+      y += lines.length * 7 + 3;
+    });
+
+    doc.save('youtube-summary.pdf');
+  };
+
   const videoId = getVideoId(link);
 
   return (
@@ -91,22 +150,15 @@ function App() {
 
         <div className="language-section">
           <label>🌐 Summary Language:</label>
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
+          <select value={language} onChange={(e) => setLanguage(e.target.value)}>
             {LANGUAGES.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.label}
-              </option>
+              <option key={lang.code} value={lang.code}>{lang.label}</option>
             ))}
           </select>
         </div>
 
         {link && (
-          <button className="clear-btn" onClick={handleClear}>
-            ✕ Clear
-          </button>
+          <button className="clear-btn" onClick={handleClear}>✕ Clear</button>
         )}
       </div>
 
@@ -137,9 +189,14 @@ function App() {
           <div className="result-card">
             <div className="result-header">
               <h2>📝 Summary</h2>
-              <button className="copy-btn" onClick={handleCopy}>
-                {copied ? '✅ Copied!' : '📋 Copy All'}
-              </button>
+              <div className="action-btns">
+                <button className="copy-btn" onClick={handleCopy}>
+                  {copied ? '✅ Copied!' : '📋 Copy'}
+                </button>
+                <button className="pdf-btn" onClick={handleDownloadPDF}>
+                  📄 Download PDF
+                </button>
+              </div>
             </div>
             <p className="summary-text">{result.summary}</p>
           </div>
@@ -171,3 +228,4 @@ function App() {
 }
 
 export default App;
+
