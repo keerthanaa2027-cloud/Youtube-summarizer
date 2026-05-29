@@ -20,6 +20,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
 
   const getVideoId = (url) => {
     if (url.includes('v=')) {
@@ -36,6 +39,7 @@ function App() {
     setLoading(true);
     setError('');
     setResult(null);
+    setChatMessages([]);
 
     try {
       const response = await fetch('http://127.0.0.1:5000/summarize', {
@@ -48,11 +52,36 @@ function App() {
         setError(data.error);
       } else {
         setResult(data);
+        setChatMessages([{
+          role: 'ai',
+          text: '👋 Hi! I have analyzed this video. Ask me anything about it!'
+        }]);
       }
     } catch (err) {
       setError('Something went wrong. Please try again!');
     }
     setLoading(false);
+  };
+
+  const handleChat = async () => {
+    if (!chatInput.trim()) return;
+
+    const userMessage = { role: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInput('');
+    setChatLoading(true);
+
+    const response = await fetch('http://127.0.0.1:5000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: chatInput,
+        video_id: result.video_id
+      })
+    });
+    const data = await response.json();
+    setChatMessages(prev => [...prev, { role: 'ai', text: data.answer }]);
+    setChatLoading(false);
   };
 
   const handleCopy = () => {
@@ -66,6 +95,7 @@ function App() {
     setLink('');
     setResult(null);
     setError('');
+    setChatMessages([]);
   };
 
   const handleDownloadPDF = () => {
@@ -73,19 +103,16 @@ function App() {
     const pageWidth = doc.internal.pageSize.getWidth();
     let y = 20;
 
-    // Title
     doc.setFontSize(20);
     doc.setTextColor(255, 0, 0);
     doc.text('YouTube Video Summary', pageWidth / 2, y, { align: 'center' });
     y += 15;
 
-    // Video URL
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text(`Source: ${link}`, 15, y);
     y += 15;
 
-    // Summary
     doc.setFontSize(14);
     doc.setTextColor(255, 0, 0);
     doc.text('Summary', 15, y);
@@ -96,7 +123,6 @@ function App() {
     doc.text(summaryLines, 15, y);
     y += summaryLines.length * 7 + 10;
 
-    // Key Points
     doc.setFontSize(14);
     doc.setTextColor(255, 0, 0);
     doc.text('Key Points', 15, y);
@@ -110,7 +136,6 @@ function App() {
     });
     y += 10;
 
-    // Timestamps
     doc.setFontSize(14);
     doc.setTextColor(255, 0, 0);
     doc.text('Timestamps', 15, y);
@@ -221,6 +246,34 @@ function App() {
               ))}
             </div>
           </div>
+
+          <div className="result-card chat-card">
+            <h2>💬 Chat with Video</h2>
+            <div className="chat-messages">
+              {chatMessages.map((msg, index) => (
+                <div key={index} className={`chat-bubble ${msg.role}`}>
+                  {msg.text}
+                </div>
+              ))}
+              {chatLoading && (
+                <div className="chat-bubble ai">
+                  <span className="typing">AI is thinking...</span>
+                </div>
+              )}
+            </div>
+            <div className="chat-input-section">
+              <input
+                type="text"
+                placeholder="Ask anything about this video..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleChat()}
+              />
+              <button onClick={handleChat} disabled={chatLoading}>
+                Send
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -228,4 +281,3 @@ function App() {
 }
 
 export default App;
-
