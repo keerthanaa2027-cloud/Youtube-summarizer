@@ -7,7 +7,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-client = Groq(api_key="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")
+client = Groq(api_key="YOUR_GROQ_KEY_HERE")
 
 # Store transcript globally for chat
 transcript_store = {}
