@@ -38,7 +38,7 @@ function App() {
 
   const handleAuth = async (type) => {
     setAuthError('');
-    const url = `http://127.0.0.1:5000/${type}`;
+    const url = `https://keerthana32-youtube-summarizer-backend.hf.space/${type}`;
     const body = type === 'login'
       ? { email: authForm.email, password: authForm.password }
       : { name: authForm.name, email: authForm.email, password: authForm.password };
@@ -91,7 +91,7 @@ function App() {
     setResult(null);
     setChatMessages([]);
     try {
-      const response = await fetch('http://127.0.0.1:5000/summarize', {
+      const response = await fetch('https://keerthana32-youtube-summarizer-backend.hf.space/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: link, language, user_email: userEmail })
@@ -110,7 +110,7 @@ function App() {
   };
 
   const handleFetchHistory = async () => {
-    const res = await fetch(`http://127.0.0.1:5000/history?email=${userEmail}`);
+    const res = await fetch(`https://keerthana32-youtube-summarizer-backend.hf.space/history?email=${userEmail}`);
     const data = await res.json();
     setHistory(data);
     setShowHistory(true);
@@ -124,7 +124,7 @@ function App() {
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result.split(',')[1];
-      const response = await fetch('http://127.0.0.1:5000/image-search', {
+      const response = await fetch('https://keerthana32-youtube-summarizer-backend.hf.space/image-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: base64 })
@@ -142,7 +142,7 @@ function App() {
     setChatMessages(prev => [...prev, userMessage]);
     setChatInput('');
     setChatLoading(true);
-    const response = await fetch('http://127.0.0.1:5000/chat', {
+    const response = await fetch('https://keerthana32-youtube-summarizer-backend.hf.space/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: chatInput, video_id: result.video_id })
@@ -160,7 +160,7 @@ function App() {
   };
 
   const handleShare = async () => {
-    const response = await fetch('http://127.0.0.1:5000/share', {
+    const response = await fetch('https://keerthana32-youtube-summarizer-backend.hf.space/share', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
